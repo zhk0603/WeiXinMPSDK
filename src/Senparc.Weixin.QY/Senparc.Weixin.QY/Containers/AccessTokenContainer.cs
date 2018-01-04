@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
 
     文件名：AccessTokenContainer.cs
     文件功能描述：通用接口AccessToken容器，用于自动管理AccessToken，如果过期会重新获取
@@ -36,7 +36,7 @@
     修改描述：v4.1.6 完善GetToken()方法
     
     修改标识：Senparc - 20160813
-    修改描述：v4.1.8 修改命名空间为Senparc.Weixin.QY.Containers
+    修改描述：v4.1.8 修改命名空间为Senparc.Weixin.Work.Containers
 ----------------------------------------------------------------*/
 
 using System;
@@ -44,6 +44,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Senparc.Weixin.CacheUtility;
 using Senparc.Weixin.Containers;
+using Senparc.Weixin.Entities;
 using Senparc.Weixin.Exceptions;
 using Senparc.Weixin.QY.CommonAPIs;
 using Senparc.Weixin.QY.Entities;
@@ -110,10 +111,27 @@ namespace Senparc.Weixin.QY.Containers
         /// 注册应用凭证信息，此操作只是注册，不会马上获取Token，并将清空之前的Token。
         /// 执行此注册过程，会连带注册ProviderTokenContainer。
         /// </summary>
-        /// <param name="corpId"></param>
-        /// <param name="corpSecret"></param>
-        /// <param name="name">标记AccessToken名称（如微信公众号名称），帮助管理员识别</param>
+        /// <param name="corpId">corpId</param>
+        /// <param name="corpSecret">corpSecret</param>
         /// 此接口无异步方法
+        public static string BuildingKey(string corpId, string corpSecret)
+        {
+            return string.Format("{0}@{1}", corpId, corpSecret);
+        }
+
+        /// <summary>
+        /// 根据Key获取corpId和corpSecret
+        /// </summary>
+        /// <param name="appKey">由BuildingKey()方法生成的Key</param>
+        /// <param name="corpId">corpId</param>
+        /// <param name="corpSecret">corpSecret</param>
+        public static void GetCoprIdAndSecretFromKey(string appKey, out string corpId, out string corpSecret)
+        {
+            var keyArr = appKey.Split('@');
+            corpId = keyArr[0];
+            corpSecret = keyArr[1];
+        }
+
         public static void Register(string corpId, string corpSecret, string name = null)
         {
             //记录注册信息，RegisterFunc委托内的过程会在缓存丢失之后自动重试
@@ -129,7 +147,7 @@ namespace Senparc.Weixin.QY.Containers
                         ExpireTime = DateTime.MinValue,
                         AccessTokenResult = new AccessTokenResult()
                     };
-                    Update(corpId, bag);
+                    Update(BuildingKey(corpId, corpSecret), bag);
                     return bag;
                 }
             };
@@ -152,38 +170,69 @@ namespace Senparc.Weixin.QY.Containers
         /// <returns></returns>
         public static string TryGetToken(string corpId, string corpSecret, bool getNewToken = false)
         {
-            if (!CheckRegistered(corpId) || getNewToken)
+            if (!CheckRegistered(BuildingKey(corpId, corpSecret)) || getNewToken)
             {
                 Register(corpId, corpSecret);
             }
-            return GetToken(corpId, getNewToken);
+            return GetToken(corpId, corpSecret, getNewToken);
+        }
+
+        /// <summary>
+        /// 获取可用Token
+        /// </summary>
+        /// <param name="appKey">由BuildingKey()方法生成的Key</param>
+        /// <param name="getNewToken">是否强制重新获取新的Token</param>
+        /// <returns></returns>
+        public static string GetToken(string appKey, bool getNewToken = false)
+        {
+            return GetTokenResult(appKey, getNewToken).access_token;
         }
 
         /// <summary>
         /// 获取可用Token
         /// </summary>
         /// <param name="corpId"></param>
+        /// <param name="corpSecret"></param>
         /// <param name="getNewToken">是否强制重新获取新的Token</param>
         /// <returns></returns>
-        public static string GetToken(string corpId, bool getNewToken = false)
+        public static string GetToken(string corpId, string corpSecret, bool getNewToken = false)
         {
-            return GetTokenResult(corpId, getNewToken).access_token;
+            var appKey = BuildingKey(corpId, corpSecret);
+            return GetTokenResult(appKey, getNewToken).access_token;
         }
 
         /// <summary>
         /// 获取可用Token
         /// </summary>
         /// <param name="corpId"></param>
+        /// <param name="corpSecret"></param>
         /// <param name="getNewToken">是否强制重新获取新的Token</param>
         /// <returns></returns>
-        public static AccessTokenResult GetTokenResult(string corpId, bool getNewToken = false)
+        public static AccessTokenResult GetTokenResult(string corpId, string corpSecret, bool getNewToken = false)
         {
-            if (!CheckRegistered(corpId))
+            var appKey = BuildingKey(corpId, corpSecret);
+            return GetTokenResult(appKey, getNewToken);
+        }
+
+        /// <summary>
+        /// 获取可用Token
+        /// </summary>
+        /// <param name="appKey">由BuildingKey()方法生成的Key</param>
+        /// <param name="getNewToken">是否强制重新获取新的Token</param>
+        /// <returns></returns>
+        public static AccessTokenResult GetTokenResult(string appKey, bool getNewToken = false)
+        {
+            if (!CheckRegistered(appKey))
             {
-                throw new WeixinQyException(UN_REGISTER_ALERT);
+                string corpId;
+                string corpSecret;
+                GetCoprIdAndSecretFromKey(appKey, out corpId, out corpSecret);
+
+                Register(corpId, corpSecret);
+                //throw new WeixinWorkException(UN_REGISTER_ALERT);
             }
 
-            var accessTokenBag = TryGetItem(corpId);
+            var accessTokenBag = TryGetItem(appKey);
             lock (accessTokenBag.Lock)
             {
                 if (getNewToken || accessTokenBag.ExpireTime <= DateTime.Now)
@@ -196,6 +245,36 @@ namespace Senparc.Weixin.QY.Containers
             }
             return accessTokenBag.AccessTokenResult;
         }
+
+
+        ///// <summary>
+        ///// 获取可用Token
+        ///// </summary>
+        ///// <param name="corpId"></param>
+        ///// <param name="corpSecret"></param>
+        ///// <param name="getNewToken">是否强制重新获取新的Token</param>
+        ///// <returns></returns>
+        //public static AccessTokenResult GetTokenResult(string corpId, string corpSecret, bool getNewToken = false)
+        //{
+        //    if (!CheckRegistered(BuildingKey(corpId, corpSecret)))
+        //    {
+        //        Register(corpId, corpSecret);
+        //        //throw new WeixinWorkException(UN_REGISTER_ALERT);
+        //    }
+
+        //    var accessTokenBag = TryGetItem(BuildingKey(corpId, corpSecret));
+        //    lock (accessTokenBag.Lock)
+        //    {
+        //        if (getNewToken || accessTokenBag.ExpireTime <= DateTime.Now)
+        //        {
+        //            //已过期，重新获取
+        //            accessTokenBag.AccessTokenResult = CommonApi.GetToken(accessTokenBag.CorpId,
+        //                accessTokenBag.CorpSecret);
+        //            accessTokenBag.ExpireTime = ApiUtility.GetExpireTime(accessTokenBag.AccessTokenResult.expires_in);
+        //        }
+        //    }
+        //    return accessTokenBag.AccessTokenResult;
+        //}
 
         ///// <summary>
         ///// 检查是否已经注册
@@ -210,6 +289,7 @@ namespace Senparc.Weixin.QY.Containers
 
         #endregion
 
+#if !NET35 && !NET40
         #region 异步方法
         /// <summary>
         /// 【异步方法】使用完整的应用凭证获取Token，如果不存在将自动注册
@@ -220,11 +300,11 @@ namespace Senparc.Weixin.QY.Containers
         /// <returns></returns>
         public static async Task<string> TryGetTokenAsync(string corpId, string corpSecret, bool getNewToken = false)
         {
-            if (!CheckRegistered(corpId) || getNewToken)
+            if (!CheckRegistered(BuildingKey(corpId, corpSecret)) || getNewToken)
             {
                 Register(corpId, corpSecret);
             }
-            return await GetTokenAsync(corpId, getNewToken);
+            return await GetTokenAsync(corpId, corpSecret, getNewToken);
         }
 
         /// <summary>
@@ -233,9 +313,9 @@ namespace Senparc.Weixin.QY.Containers
         /// <param name="corpId"></param>
         /// <param name="getNewToken">是否强制重新获取新的Token</param>
         /// <returns></returns>
-        public static async Task<string> GetTokenAsync(string corpId, bool getNewToken = false)
+        public static async Task<string> GetTokenAsync(string corpId, string corpSecret, bool getNewToken = false)
         {
-            var result = await GetTokenResultAsync(corpId, getNewToken);
+            var result = await GetTokenResultAsync(corpId, corpSecret, getNewToken);
             return result.access_token;
         }
 
@@ -245,14 +325,51 @@ namespace Senparc.Weixin.QY.Containers
         /// <param name="corpId"></param>
         /// <param name="getNewToken">是否强制重新获取新的Token</param>
         /// <returns></returns>
-        public static async Task<AccessTokenResult> GetTokenResultAsync(string corpId, bool getNewToken = false)
+        public static async Task<IAccessTokenResult> GetTokenResultAsync(string corpId, string corpSecret, bool getNewToken = false)
         {
-            if (!CheckRegistered(corpId))
+            if (!CheckRegistered(BuildingKey(corpId, corpSecret)))
             {
-                throw new WeixinQyException(UN_REGISTER_ALERT);
+                Register(corpId, corpSecret);
+                //throw new WeixinWorkException(UN_REGISTER_ALERT);
             }
 
-            var accessTokenBag = TryGetItem(corpId);
+            var accessTokenBag = TryGetItem(BuildingKey(corpId, corpSecret));
+            // lock (accessTokenBag.Lock)
+            {
+                if (getNewToken || accessTokenBag.ExpireTime <= DateTime.Now)
+                {
+                    //已过期，重新获取
+                    var accessTokenResult = await CommonApi.GetTokenAsync(accessTokenBag.CorpId,
+                        accessTokenBag.CorpSecret);
+                    //accessTokenBag.AccessTokenResult = CommonApi.GetToken(accessTokenBag.CorpId,
+                    //    accessTokenBag.CorpSecret);
+                    accessTokenBag.AccessTokenResult = accessTokenResult;
+                    accessTokenBag.ExpireTime = ApiUtility.GetExpireTime(accessTokenBag.AccessTokenResult.expires_in);
+                }
+            }
+            return accessTokenBag.AccessTokenResult;
+        }
+
+
+        /// <summary>
+        /// 【异步方法】获取可用Token
+        /// </summary>
+        /// <param name="appKey">由BuildingKey()方法生成的Key</param>
+        /// <param name="getNewToken">是否强制重新获取新的Token</param>
+        /// <returns></returns>
+        public static async Task<IAccessTokenResult> GetTokenResultAsync(string appKey, bool getNewToken = false)
+        {
+            if (!CheckRegistered(appKey))
+            {
+                string corpId;
+                string corpSecret;
+                GetCoprIdAndSecretFromKey(appKey, out corpId, out corpSecret);
+
+                Register(corpId, corpSecret);
+                //throw new WeixinWorkException(UN_REGISTER_ALERT);
+            }
+
+            var accessTokenBag = TryGetItem(appKey);
             // lock (accessTokenBag.Lock)
             {
                 if (getNewToken || accessTokenBag.ExpireTime <= DateTime.Now)
@@ -269,5 +386,6 @@ namespace Senparc.Weixin.QY.Containers
             return accessTokenBag.AccessTokenResult;
         }
         #endregion
+#endif
     }
 }

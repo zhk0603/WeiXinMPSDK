@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
   
     文件名：RequestMessageFactory.cs
     文件功能描述：获取XDocument转换后的IRequestMessageBase实例
@@ -139,6 +139,12 @@ namespace Senparc.Weixin.QY
                             break;
                         case ThirdPartyInfo.CANCEL_AUTH://取消授权的通知
                             requestMessage = new RequestMessageInfo_Cancel_Auth();
+                            break;
+                        case ThirdPartyInfo.CREATE_AUTH://授权成功推送auth_code事件
+                            requestMessage = new RequestMessageInfo_Create_Auth();
+                            break;
+                        case ThirdPartyInfo.CONTACT_SYNC://通讯录变更通知
+                            requestMessage = new RequestMessageInfo_Contact_Sync();
                             break;
                         default:
                             throw new UnknownRequestMsgTypeException(string.Format("InfoType：{0} 在RequestMessageFactory中没有对应的处理程序！", infoType), new ArgumentOutOfRangeException());//为了能够对类型变动最大程度容错（如微信目前还可以对公众账号suscribe等未知类型，但API没有开放），建议在使用的时候catch这个异常

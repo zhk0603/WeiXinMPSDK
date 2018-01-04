@@ -1,5 +1,25 @@
-﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+﻿#region Apache License Version 2.0
+/*----------------------------------------------------------------
+
+Copyright 2018 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+
+Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
+
+----------------------------------------------------------------*/
+#endregion Apache License Version 2.0
+
+/*----------------------------------------------------------------
+    Copyright (C) 2018 Senparc
     
     文件名：CardCreateData.cs
     文件功能描述：所有类型的卡券数据
@@ -15,7 +35,20 @@
     
     修改标识：hello2008zj - 20160502
     修改描述：v13.7.8 添加 Card_MemberCardData.background_pic_url
+
+    修改标识：Senparc - 20170528
+    修改描述：v14.4.10  修改Card_CashData属性类型（int）
+
+    修改标识：Senparc - 20170711
+    修改描述：v14.5.2 Card_MemberCardData添加wx_activate_after_submit和wx_activate_after_submit_url
+
+    修改标识：Senparc - 20171117
+    修改描述：v14.8.6 修改Card_MemberCardData.wx_activate_after_submit_url为string类型
+
 ----------------------------------------------------------------*/
+
+using Senparc.Weixin.Entities;
+using Senparc.Weixin.Helpers;
 
 namespace Senparc.Weixin.MP.AdvancedAPIs.Card
 {
@@ -82,12 +115,12 @@ namespace Senparc.Weixin.MP.AdvancedAPIs.Card
         /// 代金券专用，表示起用金额（单位为分）
         /// 非必填
         /// </summary>
-        public decimal least_cost { get; set; }
+        public int least_cost { get; set; }
         /// <summary>
         /// 代金券专用，表示减免金额（单位为分）
         /// 必填
         /// </summary>
-        public decimal reduce_cost { get; set; }
+        public int reduce_cost { get; set; }
 
         public Card_CashData()
             : base(CardType.CASH)
@@ -105,7 +138,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs.Card
         /// 必填
         /// </summary>
         public float discount { get; set; }
-       
+
         public Card_DisCountData()
             : base(CardType.DISCOUNT)
         {
@@ -121,21 +154,25 @@ namespace Senparc.Weixin.MP.AdvancedAPIs.Card
         /// 是否支持积分，填写true 或false，如填写true，积分相关字段均为必填。填写false，积分字段无需填写。储值字段处理方式相同。
         /// 必填
         /// </summary>
+        [JsonSetting.IgnoreValueAttribute(false)]
         public bool supply_bonus { get; set; }
         /// <summary>
         /// 是否支持储值，填写true 或false。
         /// 必填
         /// </summary>
+        [JsonSetting.IgnoreValueAttribute(false)]
         public bool supply_balance { get; set; }
         /// <summary>
         /// 设置为true时用户领取会员卡后系统自动将其激活，无需调用激活接口。
         /// 非必填
         /// </summary>
+        [JsonSetting.IgnoreValueAttribute(false)]
         public bool auto_activate { get; set; }
         /// <summary>
         /// 设置为true时会员卡支持一键激活，不允许同时传入activate_url字段，否则设置wx_activate失效。
         /// 非必填
         /// </summary>
+        [JsonSetting.IgnoreValueAttribute(false)]
         public bool wx_activate { get; set; }
         /// <summary>
         /// 积分清零规则
@@ -200,17 +237,41 @@ namespace Senparc.Weixin.MP.AdvancedAPIs.Card
         /// </summary>
         public string background_pic_url { get; set; }
 
+        //以下增加
+        /// <summary>
+        /// 积分规则结构体
+        /// </summary>
+        public BonusRule bonus_rule { get; set; }
+        /// <summary>
+        /// 折扣
+        /// </summary>
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int discount { get; set; }
+
+
+        //[JsonSetting.IgnoreValue()]
+        /// <summary>
+        /// 是否支持跳转型一键激活，填true或lse    
+        /// </summary>
+        public bool? wx_activate_after_submit { get; set; }
+        /// <summary>
+        /// 跳转型一键激活跳转的地址链接，请填写http://或者https://开头的链接（官方文档为bool类型：https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1451025283）
+        /// </summary>
+        public string wx_activate_after_submit_url { get; set; }
+
+
         public Card_MemberCardData()
             : base(CardType.MEMBER_CARD)
         {
         }
     }
 
-    public class CustomField
+    public class CustomField : IJsonEnumString
     {
         /// <summary>
         /// 会员信息类目名称。FIELD_NAME_TYPE_LEVEL等级；FIELD_NAME_TYPE_COUPON优惠券；FIELD_NAME_TYPE_STAMP印花；FIELD_NAME_TYPE_DISCOUNT折扣；FIELD_NAME_TYPE_ACHIEVEMEN成就；FIELD_NAME_TYPE_MILEAGE里程。
         /// </summary>
+        [JsonSetting.EnumString]
         public MemberCard_CustomField_NameType name_type { get; set; }
         /// <summary>
         /// 点击类目跳转外链url
@@ -235,6 +296,28 @@ namespace Senparc.Weixin.MP.AdvancedAPIs.Card
         /// 必填
         /// </summary>
         public string url { get; set; }
+    }
+    /// <summary>
+    /// 积分规则，新增加
+    /// </summary>
+    public class BonusRule
+    {
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int cost_money_unit { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int increase_bonus { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int max_increase_bonus { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int init_increase_bonus { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int cost_bonus_unit { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int reduce_money { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int least_money_to_use_bonus { get; set; }
+        [JsonSetting.IgnoreValueAttribute(0)]
+        public int max_reduce_bonus { get; set; }
     }
 
     /// <summary>

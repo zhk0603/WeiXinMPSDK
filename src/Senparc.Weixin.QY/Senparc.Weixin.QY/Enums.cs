@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
 
     文件名：Enums.cs
     文件功能描述：枚举类型
@@ -15,6 +15,10 @@
 
     修改标识：zeje - 20150507
     修改描述：v3.3.5 添加Login_User_Type枚举
+
+    修改标识：Senparc - 20150507
+    修改描述：v4.2.1 ResponseMsgType添加SuccessResponse枚举
+
 ----------------------------------------------------------------*/
 
 namespace Senparc.Weixin.QY
@@ -130,6 +134,11 @@ namespace Senparc.Weixin.QY
     public enum ThirdPartyInfo
     {
         /// <summary>
+        /// 未知
+        /// </summary>
+        Unkonwn,
+
+        /// <summary>
         /// 推送suite_ticket协议
         /// </summary>
         SUITE_TICKET,
@@ -143,6 +152,16 @@ namespace Senparc.Weixin.QY
         /// 取消授权的通知
         /// </summary>
         CANCEL_AUTH,
+
+        /// <summary>
+        /// 授权成功推送auth_code事件
+        /// </summary>
+        CREATE_AUTH,
+
+        /// <summary>
+        /// 通讯录变更通知
+        /// </summary>
+        CONTACT_SYNC
     }
 
 
@@ -160,7 +179,8 @@ namespace Senparc.Weixin.QY
         MpNews,
 
         //以下类型为Senparc.Weixin自用类型
-        NoResponse
+        NoResponse,
+        SuccessResponse
     }
 
     /// <summary>

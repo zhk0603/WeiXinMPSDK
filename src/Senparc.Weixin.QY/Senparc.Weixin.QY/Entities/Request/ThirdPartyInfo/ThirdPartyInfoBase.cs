@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
     
     文件名：ThirdPartyInfoBase.cs
     文件功能描述：第三方应用授权回调消息服务
@@ -20,12 +20,12 @@ namespace Senparc.Weixin.QY.Entities
         string TimeStamp { get; set; }
     }
 
-    public class ThirdPartyInfoBase : RequestMessageBase, IThirdPartyInfoBase
+    public abstract class ThirdPartyInfoBase : RequestMessageBase, IThirdPartyInfoBase
     {
         #region 以下内容为第三方应用授权回调消息服务
         public virtual ThirdPartyInfo InfoType
         {
-            get { return ThirdPartyInfo.SUITE_TICKET; }
+            get { return ThirdPartyInfo.Unkonwn; }
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Senparc.Weixin.QY.Entities
         public string TimeStamp { get; set; }
         #endregion
 
-        public ThirdPartyInfoBase()
+        protected ThirdPartyInfoBase()
             : base()
         {
 
