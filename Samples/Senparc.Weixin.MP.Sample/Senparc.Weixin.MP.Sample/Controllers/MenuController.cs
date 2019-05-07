@@ -18,7 +18,7 @@ using System.Web;
 using System.Web.Mvc;
 using Senparc.Weixin.Entities;
 using Senparc.Weixin.Exceptions;
-using Senparc.Weixin.Helpers.Extensions;
+using Senparc.CO2NET.Extensions;
 using Senparc.Weixin.MP.CommonAPIs;
 using Senparc.Weixin.MP.Entities;
 using Senparc.Weixin.MP.Entities.Menu;
@@ -45,7 +45,7 @@ namespace Senparc.Weixin.MP.Sample.Controllers
                 var url =
                     "https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=IP&rsv_pq=db4eb7d40002dd86&rsv_t=14d7uOUvNnTdrhnrUx0zdEVTPEN8XDq4aH7KkoHAEpTIXkRQkUD00KJ2p94&rqlang=cn&rsv_enter=1&rsv_sug3=2&rsv_sug1=2&rsv_sug7=100&rsv_sug2=0&inputT=875&rsv_sug4=875";
 
-                var htmlContent = Senparc.Weixin.HttpUtility.RequestUtility.HttpGet(url, cookieContainer: null);
+                var htmlContent = Senparc.CO2NET.HttpUtility.RequestUtility.HttpGet(url, cookieContainer: null);
                 var result = Regex.Match(htmlContent, @"(?<=本机IP:[^\d+]*)(\d+\.\d+\.\d+\.\d+)(?=</span>)");
                 if (result.Success)
                 {
@@ -96,10 +96,13 @@ namespace Senparc.Weixin.MP.Sample.Controllers
                 //var result = AccessTokenContainer.TryGetAccessToken(appId, appSecret);
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
+            catch (ErrorJsonResultException ex)
+            {
+                return Json(new { error = "API 调用发生错误：{0}".FormatWith(ex.JsonResult.ToJson()) }, JsonRequestBehavior.AllowGet);
+            }
             catch (Exception ex)
             {
-                //TODO:为简化代码，这里不处理异常（如Token过期）
-                return Json(new { error = "执行过程发生错误！" }, JsonRequestBehavior.AllowGet);
+                return Json(new { error = "执行过程发生错误：{0}".FormatWith(ex.Message) }, JsonRequestBehavior.AllowGet);
             }
         }
 

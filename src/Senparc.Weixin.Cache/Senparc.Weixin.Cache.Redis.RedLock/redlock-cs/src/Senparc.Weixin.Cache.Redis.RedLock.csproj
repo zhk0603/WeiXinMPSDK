@@ -4,7 +4,7 @@
     <Version>0.1.1</Version>
     <AssemblyName>Senparc.Weixin.Cache.Redis.RedLock</AssemblyName>
     <RootNamespace>Senparc.Weixin.Cache.Redis.RedLock</RootNamespace>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild  Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
 
     <Description>
       Senparc.Weixin.Cache.Redis.RedLock 模块
@@ -14,7 +14,7 @@
       Senparc.Weixin SDK 开源项目：
       https://github.com/JeffreySu/WeiXinMPSDK
     </Description>
-    <Copyright>Senparc Copyright © 2004~2017</Copyright>
+    <Copyright>Senparc Copyright © 2004~2018</Copyright>
     <PackageTags>Cache,Redis,RedLock,Senparc</PackageTags>
 
 

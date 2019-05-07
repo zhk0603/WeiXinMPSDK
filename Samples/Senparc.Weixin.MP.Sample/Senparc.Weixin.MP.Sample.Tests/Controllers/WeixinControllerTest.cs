@@ -23,7 +23,7 @@ using System.IO;
 using System.Web.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Senparc.Weixin.Helpers;
-using Senparc.Weixin.Context;
+using Senparc.NeuChar.Context;
 using Senparc.Weixin.MP.Entities;
 using Senparc.Weixin.MP.Entities.Request;
 using Senparc.Weixin.MP.Helpers;
@@ -31,6 +31,8 @@ using Senparc.Weixin.MP.MessageHandlers;
 using Senparc.Weixin.MP.MvcExtension;
 using Senparc.Weixin.MP.Sample.Controllers;
 using Senparc.Weixin.MP.Sample.Tests.Mock;
+using Senparc.CO2NET.Helpers;
+using Senparc.NeuChar.Entities;
 
 namespace Senparc.Weixin.MP.Sample.Tests.Controllers
 {
@@ -38,8 +40,8 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
     [TestClass]
     public class WeixinControllerTest : BaseTest
     {
-        WeixinController target;
-        Stream inputStream;
+        protected WeixinController target;
+        protected Stream inputStream;
 
         string xmlTextFormat = @"<xml>
     <ToUserName><![CDATA[gh_a96a4a619366]]></ToUserName>
@@ -64,14 +66,15 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
 </xml>";
 
 
-        private string xmlEvent_ClickFormat = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        protected string xmlEvent_ClickFormat = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <xml>
   <ToUserName><![CDATA[gh_a96a4a619366]]></ToUserName>
-  <FromUserName><![CDATA[olPjZjsXuQPJoV0HlruZkNzKc91E]]></FromUserName>
+  <FromUserName><![CDATA[olPjZjsXuQPJoV0HlruZkNzKc91E_{{2}}]]></FromUserName>
   <CreateTime>{{0}}</CreateTime>
   <MsgType><![CDATA[event]]></MsgType>
   <Event><![CDATA[CLICK]]></Event>
   <EventKey><![CDATA[{0}]]></EventKey>
+  <MsgId>{{1}}</MsgId>
 </xml>
 ";
 
@@ -102,17 +105,20 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         /// 初始化控制器及相关请求参数
         /// </summary>
         /// <param name="xmlFormat"></param>
-        private void Init(string xmlFormat)
+        protected void Init(string xmlFormat)
         {
             //target = StructureMap.ObjectFactory.GetInstance<WeixinController>();//使用IoC的在这里必须注入，不要直接实例化
             target = new WeixinController();
 
             inputStream = new MemoryStream();
-            var xml = string.Format(xmlFormat, DateTimeHelper.GetWeixinDateTime(DateTime.Now));
+
+            var xml = string.Format(xmlFormat, DateTimeHelper.GetUnixDateTime(SystemTime.Now));
             var bytes = System.Text.Encoding.UTF8.GetBytes(xml);
+
             inputStream.Write(bytes, 0, bytes.Length);
             inputStream.Flush();
             inputStream.Seek(0, SeekOrigin.Begin);
+
             target.SetFakeControllerContext(inputStream);
         }
 
@@ -120,7 +126,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         /// 测试不同类型的请求
         /// </summary>
         /// <param name="xml">微信发过来的xml原文</param>
-        private void PostTest(string xml)
+        protected void PostTest(string xml)
         {
             Init(xml);//初始化
 
@@ -128,17 +134,17 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
             var nonce = "whateveryouwant";
             var signature = Senparc.Weixin.MP.CheckSignature.GetSignature(timestamp, nonce, WeixinController.Token);
 
-            DateTime st = DateTime.Now;
+            var st = SystemTime.Now;
             //这里使用MiniPost，绕过日志记录
 
             var postModel = new PostModel()
-                {
-                    Signature = signature,
-                    Timestamp=timestamp,
-                    Nonce = nonce,
-                };
+            {
+                Signature = signature,
+                Timestamp = timestamp,
+                Nonce = nonce,
+            };
             var actual = target.MiniPost(postModel) as FixWeixinBugWeixinResult;
-            DateTime et = DateTime.Now;
+            var et = SystemTime.Now;
 
             Assert.IsNotNull(actual);
             Assert.IsNotNull(actual.Content);
@@ -177,7 +183,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         public void MessageAgent_TextTest()
         {
             //文字测试
-            var xml = string.Format(string.Format(xmlTextFormat, "托管"), DateTimeHelper.GetWeixinDateTime(DateTime.Now));
+            var xml = string.Format(string.Format(xmlTextFormat, "托管"), DateTimeHelper.GetUnixDateTime(SystemTime.Now));
             Init(xml);//初始化
 
             var timestamp = "itsafaketimestamp";
@@ -197,7 +203,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         public void MessageAgent_NewsTest()
         {
             //按钮测试-图文
-            var xml = string.Format(string.Format(xmlEvent_ClickFormat, "SubClickRoot_Agent"), DateTimeHelper.GetWeixinDateTime(DateTime.Now));
+            var xml = string.Format(string.Format(xmlEvent_ClickFormat, "SubClickRoot_Agent"), DateTimeHelper.GetUnixDateTime(SystemTime.Now));
             Init(xml);//初始化
 
             var timestamp = "itsafaketimestamp";
@@ -217,7 +223,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         public void MessageAgent_MemberTest()
         {
             //按钮测试-会员
-            var xml = string.Format(string.Format(xmlEvent_ClickFormat, "Member"), DateTimeHelper.GetWeixinDateTime(DateTime.Now));
+            var xml = string.Format(string.Format(xmlEvent_ClickFormat, "Member"), DateTimeHelper.GetUnixDateTime(SystemTime.Now));
             Init(xml);//初始化
 
             var timestamp = "itsafaketimestamp";
@@ -237,7 +243,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         public void MessageContextRecordLimtTest()
         {
             //测试MessageContext的数量限制
-            var xml = string.Format(string.Format(xmlTextFormat, "测试限制"), DateTimeHelper.GetWeixinDateTime(DateTime.Now));
+            var xml = string.Format(string.Format(xmlTextFormat, "测试限制"), DateTimeHelper.GetUnixDateTime(SystemTime.Now));
             for (int i = 0; i < 100; i++)
             {
                 Init(xml);//初始化
@@ -253,7 +259,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
                 };
                 var actual = target.MiniPost(postModel) as FixWeixinBugWeixinResult; Assert.IsNotNull(actual);
             }
-            Assert.AreEqual(1, MessageHandler<MessageContext<IRequestMessageBase,IResponseMessageBase>>.GlobalWeixinContext.MessageQueue.Count);
+            Assert.AreEqual(1, MessageHandler<MessageContext<IRequestMessageBase, IResponseMessageBase>>.GlobalWeixinContext.MessageQueue.Count);
 
             var weixinContext = MessageHandler<MessageContext<IRequestMessageBase, IResponseMessageBase>>.GlobalWeixinContext.MessageQueue[0];
             var recordCount = MessageHandler<MessageContext<IRequestMessageBase, IResponseMessageBase>>.GlobalWeixinContext.MaxRecordCount;
@@ -265,7 +271,7 @@ namespace Senparc.Weixin.MP.Sample.Tests.Controllers
         public void TextMuteTest()
         {
             //测试无返回消息
-            var xml = string.Format(string.Format(xmlEvent_ClickFormat, "mute"), DateTimeHelper.GetWeixinDateTime(DateTime.Now));
+            var xml = string.Format(string.Format(xmlEvent_ClickFormat, "mute"), DateTimeHelper.GetUnixDateTime(SystemTime.Now));
             Init(xml);//初始化
 
             PostTest(string.Format(xmlTextFormat, "mute"));

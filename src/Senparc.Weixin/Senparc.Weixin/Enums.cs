@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2018 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 #endregion Apache License Version 2.0
 
 /*----------------------------------------------------------------
-    Copyright (C) 2018 Senparc
+    Copyright (C) 2019 Senparc
 
     文件名：Enums.cs
     文件功能描述：枚举类型
@@ -60,8 +60,13 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
     修改标识：Senparc - 20170810
     修改描述：v4.14.1 ReturnCode添加：没有留言权限 = 88000
    
+    修改标识：Senparc - 20170901
+    修改描述：删除 AppStoreState 枚举，移植到 Senparc.NeuChar
+
 ----------------------------------------------------------------*/
 
+
+using System;
 
 namespace Senparc.Weixin
 {
@@ -105,25 +110,6 @@ namespace Senparc.Weixin
         /// 企业微信
         /// </summary>
         Work
-    }
-
-    /// <summary>
-    /// 缓存类型
-    /// </summary>
-    public enum CacheType
-    {
-        /// <summary>
-        /// 本地运行时缓存（单机）
-        /// </summary>
-        Local,
-        /// <summary>
-        /// Redis缓存（支持分布式）
-        /// </summary>
-        Redis,
-        /// <summary>
-        /// Memcached（支持分布式）
-        /// </summary>
-        Memcached
     }
 
     /// <summary>
@@ -254,10 +240,39 @@ namespace Senparc.Weixin
         发送消息失败_对方关闭了接收消息 = 10703,
         对方不是粉丝 = 10700,
         没有留言权限 = 88000,//without comment privilege
+        该图文不存在 = 88001,//msg_data is not exists
+        文章存在敏感信息 = 88002,//the article is limit for safety
+        精选评论数已达上限 = 88003,//elected comment upper limit
+        已被用户删除_无法精选 = 88004,//comment was deleted by user
+        已经回复过了 = 88005,//already reply
+        //88006暂时留空，未找到
+        回复超过长度限制或为0 = 88007,//reply content beyond max len or content len is zero
+        该评论不存在 = 88008,//comment is not exists
+        获取评论数目不合法 = 88010,//count range error. cout <= 0 or count > 50
 
         //开放平台
 
         该公众号_小程序已经绑定了开放平台帐号 = 89000,//account has bound open，该公众号/小程序已经绑定了开放平台帐号
+        该主体已有任务执行中_距上次任务24h后再试 = 89249,//  task running
+        内部错误= 89247,//    inner error
+        无效微信号 = 86004,//   invalid wechat
+        法人姓名与微信号不一致= 61070,// name, wechat name not in accordance
+        企业代码类型无效_请选择正确类型填写= 89248,//  invalid code type
+        未找到该任务= 89250,//  task not found
+        待法人人脸核身校验= 89251,//   legal person checking
+        法人_企业信息一致性校验中= 89252,//   front checking
+        缺少参数= 89253,//    lack of some params
+        第三方权限集不全_补全权限集全网发布后生效= 89254,//   lack of some component rights
+        已下发的模板消息法人并未确认且已超时_24h_未进行身份证校验= 100001,
+        已下发的模板消息法人并未确认且已超时_24h_未进行人脸识别校验 = 100002,
+        已下发的模板消息法人并未确认且已超时_24h= 100003,
+        工商数据返回_企业已注销=101,
+        工商数据返回_企业不存在或企业信息未更新=102,
+        工商数据返回_企业法定代表人姓名不一致= 103,
+        工商数据返回_企业法定代表人身份证号码不一致=104,
+        法定代表人身份证号码_工商数据未更新_请5_15个工作日之后尝试= 105,
+        工商数据返回_企业信息或法定代表人信息不一致=1000,
+
 
         //小程序代码管理返回码
         不是由第三方代小程序进行调用 = 86000,
@@ -275,9 +290,50 @@ namespace Senparc.Weixin
         action非法 = 85022,
         审核列表填写的项目数不在1到5以内 = 85023,
         小程序还未设置昵称_头像_简介_请先设置完后再重新提交 = 86002,
-        签名错误 = 87009
 
+        /// <summary>
+        /// 小程序为“签名错误”。对应公众号： 87009, “errmsg” : “reply is not exists” //该回复不存在
+        /// </summary>
+        签名错误 = 87009,
+        //小程序MsgSecCheck接口
+        内容含有违法违规内容 = 87014,
 
+        //小程序地点管理返回码
+        POST参数非法 = 20002,
+        该经营资质已添加_请勿重复添加 = 92000,
+        附近地点添加数量达到上线_无法继续添加 = 92002,
+        地点已被其它小程序占用 = 92003,
+        附近功能被封禁 = 92004,
+        地点正在审核中 = 92005,
+        地点正在展示小程序 = 92006,
+        地点审核失败 = 92007,
+        程序未展示在该地点 = 92008,
+        小程序未上架或不可见 = 92009,
+        地点不存在 = 93010,
+        个人类型小程序不可用 = 93011,
+
+        //门店小程序返回码
+        需要补充相应资料_填写org_code和other_files参数 = 85024,
+        管理员手机登记数量已超过上限 = 85025,
+        该微信号已绑定5个管理员 = 85026,
+        管理员身份证已登记过5次 = 85027,
+        该主体登记数量已超过上限 = 85028,
+        商家名称已被占用 = 85029,
+        不能使用该名称 = 85031,
+        该名称在侵权投诉保护期 = 85032,
+        名称包含违规内容或微信等保留字 = 85033,
+        商家名称在改名15天保护期内 = 85034,
+        需与该帐号相同主体才可申请 = 85035,
+        介绍中含有虚假混淆内容 = 85036,
+        头像或者简介修改达到每个月上限 = 85049,
+        没有权限 = 43104,
+        正在审核中_请勿重复提交 = 85050,
+        请先成功创建门店后再调用 = 85053,
+        临时mediaid无效 = 85056,
+
+        输入参数有误 = 40097,
+        门店不存在 = 65115,
+        该门店状态不允许更新 = 65118,
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
     }
 
@@ -852,29 +908,20 @@ namespace Senparc.Weixin
         en
     }
 
+
     /// <summary>
-    /// AppStore状态
+    /// 用户信息中的性别（sex）
     /// </summary>
-    public enum AppStoreState
+    [Obsolete("请使用 Senparc.Weixin.Enums.WeixinSex 枚举。")]
+    public enum Sex
     {
-        /// <summary>
-        /// 无状态
-        /// </summary>
-        None = 1,
-        /// <summary>
-        /// 已进入应用状态
-        /// </summary>
-        Enter = 2,
-        /// <summary>
-        /// 退出App状态（临时传输状态，退出后即为None）
-        /// </summary>
-        Exit = 4
+
     }
 
     /// <summary>
     /// 用户信息中的性别（sex）
     /// </summary>
-    public enum Sex
+    public enum WeixinSex
     {
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释   
         未知 = 0,

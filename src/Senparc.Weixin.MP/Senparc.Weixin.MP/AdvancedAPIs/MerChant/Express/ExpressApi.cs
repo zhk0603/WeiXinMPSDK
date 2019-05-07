@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2018 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -24,6 +24,8 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 ----------------------------------------------------------------*/
 
 using System.Threading.Tasks;
+using Senparc.NeuChar;
+using Senparc.Weixin.CommonAPIs;
 using Senparc.Weixin.Entities;
 using Senparc.Weixin.MP.CommonAPIs;
 
@@ -43,6 +45,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="addExpressData">增加邮费模板需要Post的数据</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.AddExpress", true)]
         public static AddExpressResult AddExpress(string accessToken, AddExpressData addExpressData)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/add?access_token={0}";
@@ -56,6 +59,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="templateId">邮费模板Id</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.DeleteExpress", true)]
         public static WxJsonResult DeleteExpress(string accessToken, int templateId)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/del?access_token={0}";
@@ -74,6 +78,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="upDateExpressData">修改邮费模板需要Post的数据</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.UpDateExpress", true)]
         public static WxJsonResult UpDateExpress(string accessToken, UpDateExpressData upDateExpressData)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/update?access_token={0}";
@@ -87,6 +92,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="templateId">邮费模板Id</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.GetByIdExpress", true)]
         public static GetByIdExpressResult GetByIdExpress(string accessToken, int templateId)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/getbyid?access_token={0}";
@@ -104,6 +110,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// </summary>
         /// <param name="accessToken"></param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.GetAllExpress", true)]
         public static GetAllExpressResult GetAllExpress(string accessToken)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/getall?access_token={0}";
@@ -112,7 +119,6 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         }
         #endregion
 
-#if !NET35 && !NET40
         #region 异步方法
         /// <summary>
         /// 【异步方法】增加邮费模板
@@ -120,6 +126,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="addExpressData">增加邮费模板需要Post的数据</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.AddExpressAsync", true)]
         public static async Task<AddExpressResult> AddExpressAsync(string accessToken, AddExpressData addExpressData)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/add?access_token={0}";
@@ -133,6 +140,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="templateId">邮费模板Id</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.DeleteExpressAsync", true)]
         public static async Task<WxJsonResult> DeleteExpressAsync(string accessToken, int templateId)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/del?access_token={0}";
@@ -151,6 +159,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="upDateExpressData">修改邮费模板需要Post的数据</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.UpDateExpressAsync", true)]
         public static async Task<WxJsonResult> UpDateExpressAsync(string accessToken, UpDateExpressData upDateExpressData)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/update?access_token={0}";
@@ -164,6 +173,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// <param name="accessToken"></param>
         /// <param name="templateId">邮费模板Id</param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.GetByIdExpressAsync", true)]
         public static async Task<GetByIdExpressResult> GetByIdExpressAsync(string accessToken, int templateId)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/getbyid?access_token={0}";
@@ -181,6 +191,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         /// </summary>
         /// <param name="accessToken"></param>
         /// <returns></returns>
+        [ApiBind(NeuChar.PlatformType.WeChat_OfficialAccount, "ExpressApi.GetAllExpressAsync", true)]
         public static async Task<GetAllExpressResult> GetAllExpressAsync(string accessToken)
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/getall?access_token={0}";
@@ -188,6 +199,5 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
             return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetAllExpressResult>(accessToken, urlFormat, null, CommonJsonSendType.GET);
         }
         #endregion
-#endif
     }
 }
