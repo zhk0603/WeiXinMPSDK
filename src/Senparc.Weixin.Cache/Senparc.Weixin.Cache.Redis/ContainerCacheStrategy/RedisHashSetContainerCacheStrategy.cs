@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2020 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 #endregion Apache License Version 2.0
 
 /*----------------------------------------------------------------
-    Copyright (C) 2019 Senparc
+    Copyright (C) 2020 Senparc
 
     文件名：RedisHashSetContainerCacheStrategy.cs
     文件功能描述：Redis HashSet 格式容器缓存策略。
@@ -166,7 +166,7 @@ namespace Senparc.Weixin.Cache.Redis
             key = key.Substring(0, key.Length - 1);//去掉:号
             key = baseCacheStrategy.GetFinalKey(key);//获取带 SenparcWeixin:DefaultCache: 前缀的Key（[DefaultCache]可配置）
 
-            var allHashEntry = await baseCacheStrategy.HashGetAllAsync(key);
+            var allHashEntry = await baseCacheStrategy.HashGetAllAsync(key).ConfigureAwait(false);
             //var list = (baseCacheStrategy as RedisObjectCacheStrategy).GetAll(key);
             var dic = new Dictionary<string, TBag>();
 

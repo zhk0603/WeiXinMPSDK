@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2020 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 #endregion Apache License Version 2.0
 
 /*----------------------------------------------------------------
-    Copyright (C) 2019 Senparc
+    Copyright (C) 2020 Senparc
 
     文件名：Post.cs
     文件功能描述：Post
@@ -50,6 +50,9 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
     
     修改标识：Senparc - 20190129
     修改描述：统一 CommonJsonSend.Send<T>() 方法请求接口
+
+    修改标识：Senparc - 20190602
+    修改描述：添加 Config.ThrownWhenJsonResultFaild 判断
 
 ----------------------------------------------------------------*/
 
@@ -92,14 +95,21 @@ namespace Senparc.Weixin.HttpUtility
             {
                 //可能发生错误
                 WxJsonResult errorResult = SerializerHelper.GetObject<WxJsonResult>(returnText);
+
+                ErrorJsonResultException ex = null;
                 if (errorResult.errcode != ReturnCode.请求成功)
                 {
-                    //发生错误
-                    throw new ErrorJsonResultException(
+                    //发生错误，记录异常
+                    ex =  new ErrorJsonResultException(
                         string.Format("微信Post请求发生错误！错误代码：{0}，说明：{1}",
                                       (int)errorResult.errcode,
                                       errorResult.errmsg),
                         null, errorResult);
+                }
+
+                if (Config.ThrownWhenJsonResultFaild && ex != null)
+                {
+                    throw ex;//抛出异常
                 }
             }
 

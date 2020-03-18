@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2020 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -131,7 +131,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/add?access_token={0}";
 
-            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<AddExpressResult>(accessToken, urlFormat, addExpressData);
+            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<AddExpressResult>(accessToken, urlFormat, addExpressData).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                 template_id = templateId
             };
 
-            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(accessToken, urlFormat, data);
+            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(accessToken, urlFormat, data).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/update?access_token={0}";
 
-            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(accessToken, urlFormat, upDateExpressData);
+            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(accessToken, urlFormat, upDateExpressData).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                 template_id = templateId
             };
 
-            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetByIdExpressResult>(accessToken, urlFormat, data);
+            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetByIdExpressResult>(accessToken, urlFormat, data).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         {
             var urlFormat = Config.ApiMpHost + "/merchant/express/getall?access_token={0}";
 
-            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetAllExpressResult>(accessToken, urlFormat, null, CommonJsonSendType.GET);
+            return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetAllExpressResult>(accessToken, urlFormat, null, CommonJsonSendType.GET).ConfigureAwait(false);
         }
         #endregion
     }

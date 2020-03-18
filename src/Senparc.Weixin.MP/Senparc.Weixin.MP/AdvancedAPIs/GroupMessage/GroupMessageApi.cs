@@ -1,7 +1,7 @@
 ﻿#region Apache License Version 2.0
 /*----------------------------------------------------------------
 
-Copyright 2019 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
+Copyright 2020 Jeffrey Su & Suzhou Senparc Network Technology Co.,Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 except in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
 #endregion Apache License Version 2.0
 
 /*----------------------------------------------------------------
-    Copyright (C) 2019 Senparc
+    Copyright (C) 2020 Senparc
     
     文件名：GroupMessageAPI.cs
     文件功能描述：高级群发接口
@@ -53,7 +53,12 @@ Detail: https://github.com/JeffreySu/WeiXinMPSDK/blob/master/license.md
     修改描述：v14.12.4 删除群发接口 GroupMessageApi.DeleteSendMessage() 添加article_idx参数
 
     修改标识：Senparc - 20180928
-    修改描述：增加GetSendSpeed,SetSendSpeed
+    修改描述：增加 GetSendSpeed,SetSendSpeed
+
+    修改标识：Senparc - 20190928
+    修改描述：v16.9.101 群发接口更新过期类型，使用 GroupMessageByFilter_MediaId
+
+
 ----------------------------------------------------------------*/
 
 /* 
@@ -134,7 +139,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_ImageData()
                         {
                             filter = filter,
-                            image = new GroupMessageByGroupId_MediaId()
+                            image = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -145,7 +150,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_VoiceData()
                         {
                             filter = filter,
-                            voice = new GroupMessageByGroupId_MediaId()
+                            voice = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -156,7 +161,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_MpNewsData()
                         {
                             filter = filter,
-                            mpnews = new GroupMessageByGroupId_MediaId()
+                            mpnews = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -167,7 +172,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_MpVideoData()
                         {
                             filter = filter,
-                            mpvideo = new GroupMessageByGroupId_MediaId()
+                            mpvideo = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -407,7 +412,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
         {
             return ApiHandlerWapper.TryCommonApi(accessToken =>
             {
-                //官方API地址为https://api.weixin.qq.com//cgi-bin/message/mass/delete?access_token={0}，应该是多了一个/
+                //官方API地址为https://api.weixin.qq.com/cgi-bin/message/mass/delete?access_token={0}，应该是多了一个/
                 string urlFormat = Config.ApiMpHost + "/cgi-bin/message/mass/delete?access_token={0}";
 
                 var data = new
@@ -701,7 +706,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_ImageData()
                         {
                             filter = filter,
-                            image = new GroupMessageByGroupId_MediaId()
+                            image = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -712,7 +717,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_VoiceData()
                         {
                             filter = filter,
-                            voice = new GroupMessageByGroupId_MediaId()
+                            voice = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -723,7 +728,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_MpNewsData()
                         {
                             filter = filter,
-                            mpnews = new GroupMessageByGroupId_MediaId()
+                            mpnews = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -734,7 +739,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                         baseData = new GroupMessageByFilter_MpVideoData()
                         {
                             filter = filter,
-                            mpvideo = new GroupMessageByGroupId_MediaId()
+                            mpvideo = new GroupMessageByFilter_MediaId()
                             {
                                 media_id = value
                             },
@@ -771,9 +776,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                 baseData.send_ignore_reprint = sendIgnoreReprint ? 0 : 1;//待群发的文章被判定为转载时，是否继续群发
                 baseData.clientmsgid = clientmsgid;
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
 
@@ -801,7 +806,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
             int timeOut = Config.TIME_OUT)
         {
             return await SendGroupMessageByFilterAsync(accessTokenOrAppId, groupId, null, value, type, isToAll, sendIgnoreReprint, clientmsgid,
-                timeOut);
+                timeOut).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -828,7 +833,7 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
             int timeOut = Config.TIME_OUT)
         {
             return await SendGroupMessageByFilterAsync(accessTokenOrAppId, null, tagId, value, type, isToAll, sendIgnoreReprint, clientmsgid,
-                timeOut);
+                timeOut).ConfigureAwait(false);
         }
 
 
@@ -920,9 +925,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
 
                 baseData.clientmsgid = clientmsgid;
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -958,9 +963,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
 
                 baseData.clientmsgid = clientmsgid;
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -984,9 +989,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                     msg_id = msgId,
                     article_idx = articleIdx
                 };
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(accessToken, urlFormat, data, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(accessToken, urlFormat, data, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1075,9 +1080,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                     default:
                         throw new Exception("参数错误。");
                 }
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1112,9 +1117,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                     msgtype = "wxcard"
                 };
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<SendResult>(accessToken, urlFormat, baseData, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1136,9 +1141,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                     msg_id = msgId
                 };
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetSendResult>(accessToken, urlFormat, data, timeOut: timeOut);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetSendResult>(accessToken, urlFormat, data, timeOut: timeOut).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1165,9 +1170,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                     description = description
                 };
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<VideoMediaIdResult>(null, url, data, CommonJsonSendType.POST, timeOut, true);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<VideoMediaIdResult>(null, url, data, CommonJsonSendType.POST, timeOut, true).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1183,9 +1188,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
             {
                 string urlFormat = Config.ApiMpHost + "/cgi-bin/message/mass/speed/get?access_token={0}";
                 
-                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetSpeedResult>(null, urlFormat, null, CommonJsonSendType.POST, timeOut, true);
+                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetSpeedResult>(null, urlFormat, null, CommonJsonSendType.POST, timeOut, true).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1207,9 +1212,9 @@ namespace Senparc.Weixin.MP.AdvancedAPIs
                     speed = speed
                 };
 
-                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(null, urlFormat, data, CommonJsonSendType.POST, timeOut, true);
+                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<WxJsonResult>(null, urlFormat, data, CommonJsonSendType.POST, timeOut, true).ConfigureAwait(false);
 
-            }, accessTokenOrAppId);
+            }, accessTokenOrAppId).ConfigureAwait(false);
         }
 
         #endregion

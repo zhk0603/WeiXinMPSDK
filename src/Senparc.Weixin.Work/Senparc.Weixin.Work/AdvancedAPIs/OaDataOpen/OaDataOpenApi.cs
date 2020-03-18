@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2019 Senparc
+    Copyright (C) 2020 Senparc
     
     文件名：SsoApi.cs
     文件功能描述：OA数据开放接口（Work中新增）
@@ -203,8 +203,8 @@ namespace Senparc.Weixin.Work.AdvancedAPIs.OaDataOpen
                     useridlist = userIdList
                 };
 
-                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetCheckinOptionJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut);
-            }, accessTokenOrAppKey);
+                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetCheckinOptionJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut).ConfigureAwait(false);
+            }, accessTokenOrAppKey).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -232,8 +232,8 @@ namespace Senparc.Weixin.Work.AdvancedAPIs.OaDataOpen
                     useridlist = userIdList
                 };
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetCheckinDataJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut);
-            }, accessTokenOrAppKey);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetCheckinDataJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut).ConfigureAwait(false);
+            }, accessTokenOrAppKey).ConfigureAwait(false);
         }
 
 
@@ -261,8 +261,8 @@ namespace Senparc.Weixin.Work.AdvancedAPIs.OaDataOpen
                     next_spnum = next_spnum
                 };
 
-                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetApprovalDataJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut);
-            }, accessTokenOrAppKey);
+                return await Senparc.Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetApprovalDataJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut).ConfigureAwait(false);
+            }, accessTokenOrAppKey).ConfigureAwait(false);
 
 
         }
@@ -290,8 +290,8 @@ namespace Senparc.Weixin.Work.AdvancedAPIs.OaDataOpen
                     limit = limit
                 };
 
-                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetDialRecordJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut);
-            }, accessTokenOrAppKey);
+                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetDialRecordJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut).ConfigureAwait(false);
+            }, accessTokenOrAppKey).ConfigureAwait(false);
 
         }
 
@@ -315,8 +315,8 @@ namespace Senparc.Weixin.Work.AdvancedAPIs.OaDataOpen
                     thirdId
                 };
 
-                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetOpenApprovalDataJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut);
-            }, accessTokenOrAppKey);
+                return await Weixin.CommonAPIs.CommonJsonSend.SendAsync<GetOpenApprovalDataJsonResult>(accessToken, url, data, CommonJsonSendType.POST, timeOut).ConfigureAwait(false);
+            }, accessTokenOrAppKey).ConfigureAwait(false);
 
         }
 
